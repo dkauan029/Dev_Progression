@@ -1,0 +1,578 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sua Rota Full Stack</title>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,600;1,9..144,500;1,9..144,600&family=Inter:wght@400;500;600;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #000000; --bg2: #0a0a0a; --card: #121212; --card-hover: #191919;
+    --border: #262626; --border-soft: #1a1a1a;
+    --accent: #d4a24c; --accent-soft: rgba(212,162,76,0.12);
+    --accent2: #5ec8d8; --accent2-soft: rgba(94,200,216,0.12);
+    --done: #5fd98a; --error: #e5766c;
+    --text: #f2f2f2; --text2: #9a9a9a; --text3: #5c5c5c;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; }
+  body { background: var(--bg); color: var(--text); font-family: 'Inter', sans-serif; line-height: 1.65; }
+  @media (prefers-reduced-motion: reduce) { * { transition: none !important; animation: none !important; scroll-behavior: auto !important; } }
+
+  .wrap { max-width: 780px; margin: 0 auto; padding: 3.5rem 1.5rem 6rem; }
+  .eyebrow {
+    font-family: 'Space Mono', monospace; font-size: 0.7rem; color: var(--accent2);
+    letter-spacing: 0.14em; text-transform: uppercase; margin-bottom: 0.9rem;
+    display: flex; align-items: center; gap: 0.5rem;
+  }
+  .eyebrow::before { content: ''; width: 16px; height: 1px; background: var(--accent2); }
+  em { font-style: italic; color: var(--accent); font-family: 'Fraunces', serif; }
+
+  /* ── SETUP BANNER ── */
+  .setup-banner {
+    background: var(--accent-soft); border: 1px solid var(--accent); border-radius: 12px;
+    padding: 1.1rem 1.3rem; margin-bottom: 2rem; font-size: 0.86rem; color: var(--text2); display: none;
+  }
+  .setup-banner.show { display: block; }
+  .setup-banner strong { color: var(--text); }
+  .setup-banner code { font-family: 'Space Mono', monospace; background: var(--bg2); padding: 0.1rem 0.35rem; border-radius: 4px; color: var(--accent); }
+
+  /* ── HERO ── */
+  .hero h1 {
+    font-family: 'Fraunces', serif; font-weight: 500; font-size: clamp(2.1rem, 6vw, 3.1rem);
+    line-height: 1.1; letter-spacing: -0.01em; margin-bottom: 0.9rem;
+  }
+  .hero p.lede { color: var(--text2); font-size: 1.02rem; max-width: 46ch; margin-bottom: 1.4rem; }
+
+  .sync-badge {
+    display: inline-flex; align-items: center; gap: 0.4rem; font-family: 'Space Mono', monospace;
+    font-size: 0.7rem; color: var(--text3); margin-bottom: 1.5rem;
+  }
+  .sync-badge.ok { color: var(--accent2); }
+  .sync-badge.error { color: var(--error); }
+  .sync-badge.config { color: var(--accent); }
+
+  .stat-panel {
+    background: var(--bg2); border: 1px solid var(--border); border-radius: 14px;
+    padding: 1.4rem 1.5rem; display: flex; align-items: center; gap: 1.5rem; flex-wrap: wrap;
+  }
+  .stat-ring { position: relative; width: 64px; height: 64px; flex-shrink: 0; }
+  .stat-ring svg { transform: rotate(-90deg); width: 64px; height: 64px; }
+  .stat-ring circle { fill: none; stroke-width: 6; }
+  .stat-ring .track { stroke: var(--border); }
+  .stat-ring .fill { stroke: var(--accent); stroke-linecap: round; transition: stroke-dashoffset 0.5s ease; }
+  .stat-ring-label {
+    position: absolute; inset: 0; display: flex; align-items: center; justify-content: center;
+    font-family: 'Space Mono', monospace; font-size: 0.8rem; font-weight: 700; color: var(--accent);
+  }
+  .stat-copy { flex: 1; min-width: 180px; }
+  .stat-copy-title { font-weight: 600; font-size: 0.95rem; margin-bottom: 0.2rem; }
+  .stat-copy-sub { font-family: 'Space Mono', monospace; font-size: 0.72rem; color: var(--text3); }
+
+  /* ── INTRO CARDS ── */
+  section { margin-top: 4.5rem; }
+  .section-head { margin-bottom: 1.75rem; }
+  .section-head h2 { font-family: 'Fraunces', serif; font-weight: 500; font-size: 1.55rem; line-height: 1.3; max-width: 32ch; }
+
+  .intro-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1rem; }
+  .intro-card { background: var(--bg2); border: 1px solid var(--border); border-radius: 12px; padding: 1.25rem 1.1rem; }
+  .intro-icon { font-size: 1.4rem; margin-bottom: 0.7rem; }
+  .intro-card h3 { font-size: 0.92rem; font-weight: 600; margin-bottom: 0.4rem; }
+  .intro-card p { font-size: 0.83rem; color: var(--text2); }
+
+  /* ── DECISION CARD ── */
+  .decision-card {
+    background: var(--accent2-soft); border: 1px solid var(--border); border-left: 3px solid var(--accent2);
+    border-radius: 10px; padding: 1.1rem 1.3rem; font-size: 0.87rem; color: var(--text2);
+  }
+  .decision-card strong { color: var(--text); }
+  .decision-card a { color: var(--accent2); text-decoration: none; border-bottom: 1px dotted var(--accent2); }
+
+  /* ── STEPPER ── */
+  .stepper { display: flex; align-items: flex-start; overflow-x: auto; padding-bottom: 0.5rem; gap: 0; -ms-overflow-style: none; scrollbar-width: none; }
+  .stepper::-webkit-scrollbar { display: none; }
+  .step { display: flex; flex-direction: column; align-items: center; flex-shrink: 0; width: 84px; cursor: pointer; }
+  .step-dot {
+    width: 34px; height: 34px; border-radius: 50%; border: 2px solid var(--border);
+    display: flex; align-items: center; justify-content: center; background: var(--bg2);
+    font-family: 'Space Mono', monospace; font-size: 0.7rem; color: var(--text3); font-weight: 700;
+    transition: all 0.2s ease;
+  }
+  .step-row { display: flex; align-items: center; width: 100%; }
+  .step-line { flex: 1; height: 2px; background: var(--border); margin-top: 17px; }
+  .step:first-child .step-row .step-line:first-child { display: none; }
+  .step-label { font-size: 0.66rem; color: var(--text3); text-align: center; margin-top: 0.5rem; line-height: 1.3; }
+  .step.partial .step-dot { border-color: var(--accent); color: var(--accent); border-style: dashed; }
+  .step.done .step-dot { background: var(--accent); border-color: var(--accent); color: var(--bg); }
+  .step.done .step-label { color: var(--text2); }
+
+  /* ── PHASE CARDS ── */
+  .phase { background: var(--card); border: 1px solid var(--border); border-radius: 14px; margin-bottom: 1.1rem; overflow: hidden; scroll-margin-top: 1.5rem; }
+  .phase-header { padding: 1.35rem 1.4rem; cursor: pointer; user-select: none; }
+  .phase-top { display: flex; align-items: center; gap: 0.7rem; margin-bottom: 0.55rem; }
+  .phase-code {
+    font-family: 'Space Mono', monospace; font-size: 0.68rem; color: var(--accent);
+    background: var(--accent-soft); border-radius: 5px; padding: 0.2rem 0.5rem; font-weight: 700; letter-spacing: 0.03em;
+  }
+  .phase-duration { font-family: 'Space Mono', monospace; font-size: 0.68rem; color: var(--text3); }
+  .phase-toggle { margin-left: auto; font-size: 0.68rem; color: var(--text3); transition: transform 0.2s ease; }
+  .phase.open .phase-toggle { transform: rotate(180deg); }
+  .phase-title { font-family: 'Fraunces', serif; font-weight: 500; font-size: 1.28rem; margin-bottom: 0.4rem; }
+  .phase-blurb { font-size: 0.87rem; color: var(--text2); margin-bottom: 0.6rem; }
+  .phase-count { font-family: 'Space Mono', monospace; font-size: 0.7rem; color: var(--text3); }
+  .phase-count b { color: var(--accent); }
+
+  .phase-body { max-height: 0; overflow: hidden; transition: max-height 0.35s ease; }
+  .phase.open .phase-body { max-height: 1200px; }
+  .phase-items { padding: 0.2rem 1.4rem 0.5rem; display: flex; flex-direction: column; gap: 0.1rem; }
+
+  .item { display: flex; align-items: flex-start; gap: 0.7rem; padding: 0.5rem 0.4rem; border-radius: 8px; cursor: pointer; }
+  .item:hover { background: var(--card-hover); }
+  .item-box {
+    width: 18px; height: 18px; border-radius: 5px; border: 1.5px solid var(--border);
+    flex-shrink: 0; margin-top: 0.15rem; display: flex; align-items: center; justify-content: center;
+    background: var(--bg2); transition: background 0.15s ease, border-color 0.15s ease;
+  }
+  .item.done .item-box { background: var(--done); border-color: var(--done); }
+  .item-box svg { width: 11px; height: 11px; opacity: 0; }
+  .item.done .item-box svg { opacity: 1; }
+  .item-text { font-size: 0.9rem; }
+  .item.done .item-text { color: var(--text3); text-decoration: line-through; }
+
+  .phase-tags { display: flex; flex-wrap: wrap; gap: 0.4rem; padding: 1rem 1.4rem 1.4rem; }
+  .tag {
+    font-family: 'Space Mono', monospace; font-size: 0.66rem; color: var(--text2);
+    background: var(--bg2); border: 1px solid var(--border-soft); border-radius: 100px; padding: 0.25rem 0.65rem;
+  }
+
+  /* ── HABITS ── */
+  .habits-grid { display: flex; flex-direction: column; gap: 0.15rem; background: var(--bg2); border: 1px dashed var(--border); border-radius: 14px; padding: 1.1rem 1.2rem; }
+
+  /* ── CTA / FOOTER ── */
+  .cta { text-align: center; padding: 3rem 1rem; }
+  .cta h2 { font-family: 'Fraunces', serif; font-style: italic; font-weight: 500; font-size: 1.9rem; margin-bottom: 0.6rem; }
+  .cta p { color: var(--text2); font-size: 0.9rem; }
+
+  footer { margin-top: 3rem; display: flex; justify-content: space-between; align-items: center; gap: 1rem; flex-wrap: wrap; border-top: 1px solid var(--border-soft); padding-top: 1.5rem; }
+  .hint { font-size: 0.78rem; color: var(--text3); }
+  #reset-btn {
+    font-family: 'Space Mono', monospace; font-size: 0.72rem; color: var(--text3);
+    background: none; border: 1px solid var(--border); border-radius: 7px; padding: 0.5rem 0.9rem; cursor: pointer;
+  }
+  #reset-btn:hover { color: var(--text); border-color: var(--text3); }
+
+  .item:focus-visible, .phase-header:focus-visible, .step:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+  @media (max-width: 620px) {
+    .intro-grid { grid-template-columns: 1fr; }
+    .wrap { padding: 2.5rem 1.1rem 5rem; }
+    section { margin-top: 3.25rem; }
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <div class="setup-banner" id="setup-banner">
+    <strong>Falta configurar o Supabase.</strong> Abra este arquivo num editor de texto, procure por
+    <code>SUPABASE_URL</code> no início da tag <code>&lt;script&gt;</code> (perto do fim do arquivo) e cole a URL e a chave
+    <code>anon public</code> do seu projeto Supabase. Sem isso, os checks funcionam nesta sessão mas não são salvos.
+  </div>
+
+  <div class="hero">
+    <div class="eyebrow">daniel kauan · c&amp;t ufrn</div>
+    <h1>Sua Rota <em>Full Stack</em></h1>
+    <p class="lede">Do 3º semestre de C&amp;T até a cadeira de desenvolvedor sênior. Nove fases, sem prazo fixo — cada uma fecha quando você consegue algo concreto.</p>
+    <div class="sync-badge" id="sync-badge">● verificando conexão…</div>
+    <div class="stat-panel">
+      <div class="stat-ring">
+        <svg viewBox="0 0 64 64">
+          <circle class="track" cx="32" cy="32" r="27"/>
+          <circle class="fill" id="ring-fill" cx="32" cy="32" r="27" stroke-dasharray="169.6" stroke-dashoffset="169.6"/>
+        </svg>
+        <div class="stat-ring-label" id="progress-pct">0%</div>
+      </div>
+      <div class="stat-copy">
+        <div class="stat-copy-title">Progresso geral da rota</div>
+        <div class="stat-copy-sub" id="progress-count">0 de 0 itens concluídos</div>
+      </div>
+    </div>
+  </div>
+
+  <section>
+    <div class="section-head">
+      <h2>Por que este plano não termina no primeiro emprego</h2>
+    </div>
+    <div class="intro-grid">
+      <div class="intro-card">
+        <div class="intro-icon">🎯</div>
+        <h3>Meta clara</h3>
+        <p>De estudante a Full Stack Sênior — não só até a primeira vaga.</p>
+      </div>
+      <div class="intro-card">
+        <div class="intro-icon">🔁</div>
+        <h3>Fases, não meses</h3>
+        <p>Cada etapa fecha por critério concreto, não por calendário.</p>
+      </div>
+      <div class="intro-card">
+        <div class="intro-icon">📈</div>
+        <h3>Um projeto evoluindo</h3>
+        <p>Seu site de Arquitetura é a espinha dorsal prática da rota inteira.</p>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <div class="section-head">
+      <h2>A decisão que já está tomada</h2>
+    </div>
+    <div class="decision-card">
+      <strong>Rota acadêmica:</strong> permanecer em C&amp;T com ênfase em Computação Aplicada, monitorando os editais de
+      <a href="https://www.prograd.ufrn.br/pagina.php?a=formas_ingresso" target="_blank" rel="noopener">Reocupação de Vagas Residuais</a>
+      da PROGRAD para uma eventual transferência interna à Engenharia de Software (IMD). Processo anual, sem garantia de vaga na área a cada ciclo —
+      vale conferir o edital vigente direto na PROGRAD quando chegar a época.
+    </div>
+  </section>
+
+  <section>
+    <div class="section-head">
+      <h2>Parte disso já está na sua grade</h2>
+    </div>
+    <div class="decision-card" style="border-left-color: var(--accent); background: var(--accent-soft);">
+      Componentes optativos da própria ênfase em Computação Aplicada parecem cobrir boa parte das Fases 1 a 4 e 7 — <strong>Desenvolvimento Web Frontend</strong>,
+      <strong>Desenvolvimento Web Backend</strong>, <strong>Implantação de Sistema na Web</strong> e <strong>Programação Orientada a Objetos</strong> aparecem na listagem
+      de optativas que encontrei. Confirmado só que a ênfase existe e a estrutura geral (4 semestres, ~270h); os nomes exatos das disciplinas ainda dependem de
+      você confirmar no SIGAA logado — se baterem, priorize essas optativas.
+    </div>
+  </section>
+
+  <section>
+    <div class="section-head">
+      <h2>As nove fases da rota</h2>
+    </div>
+    <div class="stepper" id="stepper"></div>
+  </section>
+
+  <section id="phases"></section>
+
+  <section>
+    <div class="section-head">
+      <h2>Hábitos que atravessam todas as fases</h2>
+    </div>
+    <div class="habits-grid" id="habits-items"></div>
+  </section>
+
+  <div class="cta">
+    <h2>É a sua vez.</h2>
+    <p>Comece pela Fase 0 — o resto se constrói em cima dela.<br>Terminar tudo aqui te leva a um nível sênior sólido — mas nenhuma lista fecha a carreira: a área muda, e continuar estudando depois do último check é parte do trabalho.</p>
+  </div>
+
+  <footer>
+    <span class="hint">Progresso salvo na nuvem (Supabase) — sincroniza em qualquer dispositivo, uma vez configurado.</span>
+    <button id="reset-btn">Zerar progresso</button>
+  </footer>
+
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+/* ══════════════════════════════════════════════════════════════
+   CONFIGURAÇÃO SUPABASE — edite as 3 linhas abaixo
+   1) Crie um projeto grátis em supabase.com
+   2) No SQL Editor, rode o script da tabela (veja instruções que te mandei)
+   3) Em Project Settings > API, copie a "Project URL" e a "anon public key"
+   ══════════════════════════════════════════════════════════════ */
+const SUPABASE_URL = 'https://ipbcbfisfcersotkohed.supabase.co';
+const SUPABASE_ANON_KEY = 'sb_publishable_5y8KyRTgep_J8Fy8fzWsgQ_zqF946up';
+const ROW_ID = 'daniel-kauan-fullstack';
+/* ══════════════════════════════════════════════════════════════ */
+
+const isConfigured = SUPABASE_URL.startsWith('http') && SUPABASE_ANON_KEY.length > 20;
+const sb = isConfigured ? window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY) : null;
+
+const PHASES = [
+  {
+    id: 'f0', code: 'FS·00', title: 'Fechamento da <em>Base</em>', duration: '2–3 semanas',
+    blurb: 'Fechar o que já está em andamento antes de abrir frente nova.',
+    tags: ['Redes', 'Git', 'Primeiro repositório'],
+    items: [
+      { id: 'f0-1', text: 'Finalizar conteúdo de Redes no material (TCP/IP, HTTP, DNS, portas)' },
+      { id: 'f0-2', text: 'Rodar git init dentro de ~/dev-fullstack/meu-primeiro-app' },
+      { id: 'f0-3', text: 'Primeiro commit do site de Arquitetura de Computadores' },
+      { id: 'f0-4', text: 'Criar repositório no GitHub e dar git push' },
+    ]
+  },
+  {
+    id: 'f1', code: 'FS·01', title: 'Fundamentos <em>Web</em>', duration: '4–6 semanas · ~40-50h',
+    blurb: 'Estruturar página, estilizar e começar a pensar em JS de verdade.',
+    tags: ['HTML', 'CSS', 'JavaScript', 'Git'],
+    items: [
+      { id: 'f1-1', text: 'freeCodeCamp — Responsive Web Design completo' },
+      { id: 'f1-2', text: 'JS moderno: map/filter/reduce, fetch, async/await' },
+      { id: 'f1-3', text: 'Git: branches, merge, resolver um conflito de verdade' },
+      { id: 'f1-4', text: 'Entregável: refatorar uma seção do site de Arquitetura sem framework' },
+      { id: 'f1-5', text: 'Acessibilidade básica: HTML semântico, ARIA, contraste, navegação por teclado' },
+    ]
+  },
+  {
+    id: 'f2', code: 'FS·02', title: 'React &amp; <em>TypeScript</em>', duration: '6–8 semanas · ~60-80h',
+    blurb: 'Componentizar o que já existe, com tipagem desde o primeiro dia.',
+    tags: ['React', 'TypeScript', 'Tailwind', 'Lógica'],
+    items: [
+      { id: 'f2-1', text: 'React com TypeScript: useState, useEffect' },
+      { id: 'f2-2', text: 'Tailwind CSS' },
+      { id: 'f2-3', text: 'Migrar módulos do site para componentes React + TS' },
+      { id: 'f2-4', text: 'Componentizar sistema de anotações e checklist' },
+      { id: 'f2-5', text: 'Começar prática diária de lógica/algoritmos (NeetCode ou beecrowd)' },
+      { id: 'f2-6', text: 'Fundamentos de POO: classes, encapsulamento, herança, composição' },
+      { id: 'f2-7', text: 'Estruturas de Dados formalmente: listas, pilhas, filas, árvores, hashmaps (não só problemas soltos)' },
+    ]
+  },
+  {
+    id: 'f3', code: 'FS·03', title: 'Back-end &amp; <em>Dados</em>', duration: '8–10 semanas · ~80-100h',
+    blurb: 'Construir o motor que seu front-end já está esperando.',
+    tags: ['Node.js', 'Express', 'PostgreSQL', 'JWT'],
+    items: [
+      { id: 'f3-1', text: 'Node.js + Express: rotas REST básicas' },
+      { id: 'f3-2', text: 'Configurar PostgreSQL' },
+      { id: 'f3-3', text: 'Implementar /api/anotacoes de verdade (o back-end que o front já espera)' },
+      { id: 'f3-4', text: 'Autenticação com JWT + bcrypt' },
+      { id: 'f3-5', text: 'Testar toda a API localmente (Postman/Insomnia)' },
+      { id: 'f3-6', text: 'Fundamentos de segurança web: OWASP Top 10, validação de entrada, SQL injection, XSS, CSRF' },
+      { id: 'f3-7', text: 'Introdução a um banco NoSQL (MongoDB ou Redis) — saber quando SQL não é a resposta certa' },
+    ]
+  },
+  {
+    id: 'f4', code: 'FS·04', title: 'Integração &amp; <em>Deploy</em>', duration: '3–4 semanas · ~30-40h',
+    blurb: 'Colocar tudo pra funcionar junto, no ar, pra qualquer um acessar.',
+    tags: ['Vercel', 'Render', 'Variáveis de ambiente'],
+    items: [
+      { id: 'f4-1', text: 'Conectar o front-end React à API real' },
+      { id: 'f4-2', text: 'Configurar variáveis de ambiente (.env)' },
+      { id: 'f4-3', text: 'Deploy do front-end na Vercel' },
+      { id: 'f4-4', text: 'Deploy do back-end + banco na Render/Railway' },
+      { id: 'f4-5', text: 'Testar o site no ar com login e anotações persistindo' },
+      { id: 'f4-6', text: 'Publicar o link no GitHub/portfólio' },
+    ]
+  },
+  {
+    id: 'f5', code: 'FS·05', title: 'Portfólio &amp; <em>Estágio</em>', duration: 'a partir daqui, contínuo',
+    blurb: 'Transformar o que você construiu em oportunidade real.',
+    tags: ['Portfólio', 'LinkedIn', 'Currículo', 'Inglês técnico'],
+    items: [
+      { id: 'f5-1', text: 'Construir 2 projetos além do site de Arquitetura (CRUD com auth, consumo de API pública)' },
+      { id: 'f5-2', text: 'Escrever READMEs completos: o que é, como rodar, decisões técnicas' },
+      { id: 'f5-3', text: 'Organizar o GitHub como portfólio (pins, perfil, commits consistentes)' },
+      { id: 'f5-4', text: 'Montar/atualizar perfil no LinkedIn' },
+      { id: 'f5-5', text: 'Montar currículo direcionado a vagas de estágio' },
+      { id: 'f5-6', text: 'Treinar leitura técnica em inglês (docs oficiais, issues no GitHub)' },
+      { id: 'f5-7', text: 'Praticar exercícios de lógica em ritmo de entrevista (nível estágio)' },
+      { id: 'f5-8', text: 'Aplicar para vagas de estágio (LinkedIn, Gupy, Indeed, programas de empresa)' },
+      { id: 'f5-9', text: 'Simular ao menos 1 entrevista técnica (mock interview) antes de aplicar de verdade' },
+      { id: 'f5-10', text: 'Preparar entrevista comportamental: storytelling dos seus projetos, não só código' },
+    ]
+  },
+  {
+    id: 'f6', code: 'FS·06', title: 'Primeiro Emprego · <em>Júnior</em>', duration: '~1–2 anos de experiência',
+    blurb: 'Consolidar fundamentos com pressão real de equipe e produção.',
+    tags: ['Testes', 'Scrum', 'Code review', 'IA aplicada ao código'],
+    items: [
+      { id: 'f6-1', text: 'Aprender o fluxo de Git em equipe (PRs, code review, conflitos reais)' },
+      { id: 'f6-2', text: 'Participar de rituais ágeis (Scrum/Kanban) na prática' },
+      { id: 'f6-3', text: 'Escrever testes automatizados: Jest (unitários) e Cypress/Playwright (e2e)' },
+      { id: 'f6-4', text: 'Desenvolver fluência com Copilot/Cursor/Claude Code — e revisar criticamente o que geram' },
+      { id: 'f6-5', text: 'Ler e revisar código de outras pessoas, não só escrever o seu' },
+      { id: 'f6-6', text: 'Manter 1 problema de lógica por semana pra não perder o ritmo' },
+      { id: 'f6-7', text: 'Documentar decisões técnicas de forma simples (comentários úteis, pequenos ADRs)' },
+    ]
+  },
+  {
+    id: 'f7', code: 'FS·07', title: 'Aprofundamento · <em>Pleno</em>', duration: '~2–4 anos de experiência',
+    blurb: 'Sair do "fazer funcionar" pra "fazer funcionar bem, em escala".',
+    tags: ['Docker', 'CI/CD', 'Cloud', 'Arquitetura de API'],
+    items: [
+      { id: 'f7-1', text: 'Docker: containerizar suas próprias aplicações' },
+      { id: 'f7-2', text: 'CI/CD com GitHub Actions' },
+      { id: 'f7-3', text: 'Fundamentos de nuvem (AWS ou GCP): storage, banco gerenciado, deploy' },
+      { id: 'f7-4', text: 'API design mais sério: paginação, versionamento, rate limiting, OAuth' },
+      { id: 'f7-5', text: 'Observabilidade básica: logs estruturados, métricas, alertas' },
+      { id: 'f7-6', text: 'Aplicar princípios de arquitetura (camadas, SOLID) em projetos reais' },
+      { id: 'f7-7', text: 'Caching de verdade com Redis (sair da analogia e implementar)' },
+      { id: 'f7-8', text: 'Performance web: Core Web Vitals, lazy loading, otimização de imagens e bundle' },
+      { id: 'f7-9', text: 'WebSockets / comunicação em tempo real (ex: chat, notificações ao vivo)' },
+    ]
+  },
+  {
+    id: 'f8', code: 'FS·08', title: 'Especialização · <em>Sênior</em>', duration: '~4+ anos de experiência',
+    blurb: 'De quem resolve tarefas pra quem toma decisão técnica.',
+    tags: ['System design', 'Mentoria', 'Arquitetura', 'Especialização'],
+    items: [
+      { id: 'f8-1', text: 'Estudar system design: cache distribuído, filas (RabbitMQ/Kafka), balanceamento de carga' },
+      { id: 'f8-2', text: 'Fazer mentoria de devs juniores e revisões de código mais profundas' },
+      { id: 'f8-3', text: 'Participar de decisões de arquitetura e comunicar trade-offs a não-técnicos' },
+      { id: 'f8-4', text: 'Escolher uma especialização (performance, segurança, infra, ou dados/IA — aproveitando sua base em C&T)' },
+      { id: 'f8-5', text: 'Contribuir com projetos open source' },
+      { id: 'f8-6', text: 'Compartilhar conhecimento (blog técnico, palestras, mentoria formal)' },
+      { id: 'f8-7', text: 'GraphQL ou gRPC: entender quando faz sentido sair do REST' },
+    ]
+  },
+];
+
+const HABITS = [
+  { id: 'h-1', text: 'Inglês técnico desde o dia 1 — ler docs originais, não só traduções' },
+  { id: 'h-2', text: 'Networking: LinkedIn ativo, comunidades de dev, eventos locais' },
+  { id: 'h-3', text: 'Lógica/algoritmos nunca para — só muda de nível' },
+  { id: 'h-4', text: 'Fluência crescente com ferramentas de IA de desenvolvimento' },
+  { id: 'h-5', text: 'Portfólio sempre atualizado, mesmo depois de empregado' },
+];
+
+let state = {};
+
+function allItems() { return PHASES.flatMap(p => p.items).concat(HABITS); }
+
+function itemHTML(it) {
+  return `
+    <div class="item" id="item-${it.id}" tabindex="0" onclick="toggleItem('${it.id}')" onkeydown="if(event.key==='Enter'){toggleItem('${it.id}')}">
+      <div class="item-box">
+        <svg viewBox="0 0 24 24" fill="none" stroke="#0c1220" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+      </div>
+      <div class="item-text">${it.text}</div>
+    </div>`;
+}
+
+function renderStepper() {
+  document.getElementById('stepper').innerHTML = PHASES.map((p, i) => `
+    <div class="step" id="step-${p.id}" tabindex="0" onclick="jumpTo('${p.id}')" onkeydown="if(event.key==='Enter'){jumpTo('${p.id}')}">
+      <div class="step-row">
+        <div class="step-line"></div>
+        <div class="step-dot">${i}</div>
+        <div class="step-line"></div>
+      </div>
+      <div class="step-label">${p.title.replace(/<\/?em>/g, '')}</div>
+    </div>
+  `).join('');
+}
+
+function renderPhases() {
+  document.getElementById('phases').innerHTML = PHASES.map(p => `
+    <div class="phase" id="phase-${p.id}">
+      <div class="phase-header" tabindex="0" onclick="togglePhase('${p.id}')" onkeydown="if(event.key==='Enter'){togglePhase('${p.id}')}">
+        <div class="phase-top">
+          <span class="phase-code">${p.code}</span>
+          <span class="phase-duration">${p.duration}</span>
+          <span class="phase-toggle">▼</span>
+        </div>
+        <div class="phase-title">${p.title}</div>
+        <div class="phase-blurb">${p.blurb}</div>
+        <div class="phase-count"><b id="count-${p.id}">0</b>/${p.items.length} concluído</div>
+      </div>
+      <div class="phase-body">
+        <div class="phase-items">${p.items.map(itemHTML).join('')}</div>
+        <div class="phase-tags">${p.tags.map(t => `<span class="tag">${t}</span>`).join('')}</div>
+      </div>
+    </div>
+  `).join('');
+  document.getElementById('habits-items').innerHTML = HABITS.map(itemHTML).join('');
+}
+
+function togglePhase(id) { document.getElementById(`phase-${id}`).classList.toggle('open'); }
+
+function jumpTo(id) {
+  document.getElementById(`phase-${id}`).classList.add('open');
+  document.getElementById(`phase-${id}`).scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+function setSyncStatus(kind) {
+  const el = document.getElementById('sync-badge');
+  if (!el) return;
+  el.className = 'sync-badge ' + kind;
+  el.textContent = kind === 'ok' ? '● sincronizado com a nuvem'
+    : kind === 'error' ? '● erro de conexão — veja o console (F12)'
+    : '● não configurado — veja o aviso acima';
+}
+
+async function loadState() {
+  if (!isConfigured) { setSyncStatus('config'); document.getElementById('setup-banner').classList.add('show'); return {}; }
+  try {
+    const { data, error } = await sb.from('checklist_progress').select('state').eq('id', ROW_ID).maybeSingle();
+    if (error) throw error;
+    if (!data) {
+      await sb.from('checklist_progress').insert({ id: ROW_ID, state: {} });
+      setSyncStatus('ok');
+      return {};
+    }
+    setSyncStatus('ok');
+    return data.state || {};
+  } catch (err) {
+    console.error('Erro ao carregar do Supabase:', err);
+    setSyncStatus('error');
+    return {};
+  }
+}
+
+async function saveState() {
+  if (!isConfigured) return;
+  try {
+    const { error } = await sb.from('checklist_progress').upsert({ id: ROW_ID, state, updated_at: new Date().toISOString() });
+    if (error) throw error;
+    setSyncStatus('ok');
+  } catch (err) {
+    console.error('Erro ao salvar no Supabase:', err);
+    setSyncStatus('error');
+  }
+}
+
+async function toggleItem(id) {
+  state[id] = !state[id];
+  updateUI();
+  await saveState();
+}
+
+const RING_CIRC = 169.6;
+
+function updateUI() {
+  allItems().forEach(it => {
+    const el = document.getElementById(`item-${it.id}`);
+    if (el) el.classList.toggle('done', !!state[it.id]);
+  });
+
+  PHASES.forEach(p => {
+    const done = p.items.filter(it => state[it.id]).length;
+    const countEl = document.getElementById(`count-${p.id}`);
+    if (countEl) countEl.textContent = done;
+    const stepEl = document.getElementById(`step-${p.id}`);
+    if (stepEl) {
+      stepEl.classList.remove('partial', 'done');
+      if (done === p.items.length) stepEl.classList.add('done');
+      else if (done > 0) stepEl.classList.add('partial');
+    }
+  });
+
+  const total = allItems().length;
+  const totalDone = allItems().filter(it => state[it.id]).length;
+  const pct = total ? Math.round((totalDone / total) * 100) : 0;
+  document.getElementById('progress-pct').textContent = pct + '%';
+  document.getElementById('progress-count').textContent = `${totalDone} de ${total} itens concluídos`;
+  document.getElementById('ring-fill').style.strokeDashoffset = RING_CIRC - (RING_CIRC * pct / 100);
+}
+
+async function init() {
+  renderStepper();
+  renderPhases();
+  state = await loadState();
+  updateUI();
+  const firstPending = PHASES.find(p => p.items.some(it => !state[it.id])) || PHASES[0];
+  document.getElementById(`phase-${firstPending.id}`).classList.add('open');
+}
+
+document.getElementById('reset-btn').addEventListener('click', async () => {
+  if (!confirm('Zerar todo o progresso salvo?')) return;
+  state = {};
+  updateUI();
+  await saveState();
+});
+
+init();
+</script>
+</body>
+</html>
